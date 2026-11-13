@@ -1,36 +1,36 @@
-apiVersion: kubara.io/v1alpha7
-kind: PlatformSetup
-metadata:
-  name: platform
-spec:
-  clusters:
-  - argocd:
+version: v1alpha6
+clusters:
+  - name: test-cluster
+    stage: local
+    type: hub
+    dnsName: test-cluster-local.traefik.me
+    ssoOrg: local
+    ssoTeam: local
+    networking:
+      type: ingress
+      ingress:
+        className: traefik
+    argocd:
+      selfManaged: enabled
       repo:
         authMode: https
         git:
-          components:
-            targetRevision: main
-            url: https://github.com/your-user/your-gitops-repo.git
           configs:
-            targetRevision: main
             url: https://github.com/your-user/your-gitops-repo.git
-      selfManaged: enabled
+            targetRevision: main
+          components:
+            url: https://github.com/your-user/your-gitops-repo.git
+            targetRevision: main
     catalogs:
-    - oci://ghcr.io/kubara-io/catalogs/general:7.0.0
-    dnsName: test-cluster-local.traefik.me
-    name: test-cluster
-    networking:
-      ingress:
-        className: traefik
-      type: ingress
+      - oci://ghcr.io/kubara-io/catalogs/general:7.0.0
     services:
       cert-manager:
+        status: enabled
         config:
           clusterIssuer:
-            email: yourname@your-domain.de
+            email: info@example.com
             name: letsencrypt-staging
             server: https://acme-staging-v02.api.letsencrypt.org/directory
-        status: enabled
       crossplane:
         status: disabled
       external-dns:
@@ -62,13 +62,9 @@ spec:
       traefik:
         status: enabled
       velero:
+        status: disabled
         config:
           backupMode: fs-backup
           backupStorage:
             create: true
             region: eu01
-        status: disabled
-    ssoOrg: local
-    ssoTeam: local
-    stage: local
-    type: hub
